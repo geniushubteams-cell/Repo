@@ -22,12 +22,23 @@ CREATE INDEX idx_batches_category ON batches(category);
 CREATE INDEX idx_batches_class_level ON batches(class_level);
 
 -- Create user_batches table for enrollment tracking
-CREATE TABLE user_batches (
+CREATE TABLE IF NOT EXISTS user_batches (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id TEXT NOT NULL,
   batch_id UUID NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
   enrolled_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
   UNIQUE(user_id, batch_id)
+);
+
+-- Create banners table for managing homepage banners
+CREATE TABLE IF NOT EXISTS banners (
+  id SERIAL PRIMARY KEY,
+  image_url TEXT NOT NULL,
+  link_url TEXT NOT NULL,
+  display_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
 );
 
 -- Create indexes for user_batches

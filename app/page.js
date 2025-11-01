@@ -1,14 +1,15 @@
-'use client'
+          'use client'
 
 import { useState, useEffect } from 'react'
 import { FaGraduationCap, FaBook, FaFlask, FaMedkit, FaYoutube, FaWhatsapp, FaRobot, FaPhone, FaBars, FaTimes, FaMoon, FaSun, FaUsers, FaArrowLeft } from 'react-icons/fa'
 import Image from 'next/image'
 import { supabase } from '../lib/supabase'
+import Banner from '../components/Banner'
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
-  const [activeTab, setActiveTab] = useState('my-batches')
+  const [activeTab, setActiveTab] = useState('all-batches')
   const [activeStudyTab, setActiveStudyTab] = useState('foundation')
   const [activeFoundationClass, setActiveFoundationClass] = useState(null)
   const [activeJeeClass, setActiveJeeClass] = useState(null)
@@ -144,8 +145,8 @@ export default function Home() {
   }
 
   const sidebarTabs = [
-    { id: 'my-batches', label: 'My Batches', icon: <FaGraduationCap /> },
     { id: 'all-batches', label: 'All Batches', icon: <FaUsers /> },
+    { id: 'my-batches', label: 'My Batches', icon: <FaGraduationCap /> },
     { id: 'contact-bot', label: 'Contact Bot', icon: <FaRobot />, link: 'https://t.me/GENIUS_HUB_OWNER_BOT' },
     { id: 'youtube', label: 'YouTube Channel', icon: <FaYoutube />, link: 'https://youtube.com/@geniushubteam?si=ZOIWTuUWDA9gW--I' },
     { id: 'whatsapp', label: 'WhatsApp Channel', icon: <FaWhatsapp />, link: 'https://whatsapp.com/channel/0029Vb6US0KGzzKZNTxQBW1f' },
@@ -161,6 +162,7 @@ export default function Home() {
 
   const foundationClasses = ['Class 9', 'Class 10', 'Class 11', 'Class 12']
   const competitiveClasses = ['Class 11', 'Class 12', 'Droppers']
+  const khazanaClasses = ['Class 9', 'Class 10', 'Class 11', 'Class 12', 'JEE', 'NEET']
 
   // Sample batches data
   const allBatchesData = [
@@ -280,6 +282,11 @@ export default function Home() {
         <main className="pt-[72px] lg:pl-72 min-h-screen">
           <div className="p-6 md:p-8">
             
+            {/* Banner Section */}
+            <div className="mb-8">
+              <Banner />
+            </div>
+            
             {/* My Batches Tab */}
             {activeTab === 'my-batches' && (
               <div>
@@ -337,31 +344,89 @@ export default function Home() {
             {/* All Batches Tab */}
             {activeTab === 'all-batches' && (
               <div>
-                {/* Study Material Tabs - Hidden when showing batches list */}
+                {/* Category Tabs - Show directly */}
                 {!showBatchesList && (
-                  <div className="flex flex-wrap gap-4 mb-8">
-                    {studyMaterialTabs.map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => {
-                          setActiveStudyTab(tab.id)
-                          setActiveFoundationClass(null)
-                          setActiveJeeClass(null)
-                          setActiveNeetClass(null)
-                          setActiveKhazanaClass(null)
-                          setActiveStudyMaterialsClass(null)
-                          setShowBatchesList(false)
-                        }}
-                        className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
-                          activeStudyTab === tab.id
-                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg transform scale-105'
-                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md'
-                        }`}
-                      >
-                        <span className="text-xl">{tab.icon}</span>
-                        <span>{tab.label}</span>
-                      </button>
-                    ))}
+                  <div>
+                    {/* Category Tabs in 3 Rows */}
+                    <div className="space-y-4 mb-8">
+                      {/* Row 1: Study Materials & Foundation */}
+                      <div className="flex flex-wrap gap-4">
+                        {studyMaterialTabs.slice(0, 2).map((tab) => (
+                          <button
+                            key={tab.id}
+                            onClick={() => {
+                              setActiveStudyTab(tab.id)
+                              setActiveFoundationClass(null)
+                              setActiveJeeClass(null)
+                              setActiveNeetClass(null)
+                              setActiveKhazanaClass(null)
+                              setActiveStudyMaterialsClass(null)
+                              setShowBatchesList(false)
+                            }}
+                            className={`flex-1 min-w-[200px] flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                              activeStudyTab === tab.id
+                                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg transform scale-105'
+                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md'
+                            }`}
+                          >
+                            <span className="text-xl">{tab.icon}</span>
+                            <span>{tab.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                      
+                      {/* Row 2: JEE & NEET */}
+                      <div className="flex flex-wrap gap-4">
+                        {studyMaterialTabs.slice(2, 4).map((tab) => (
+                          <button
+                            key={tab.id}
+                            onClick={() => {
+                              setActiveStudyTab(tab.id)
+                              setActiveFoundationClass(null)
+                              setActiveJeeClass(null)
+                              setActiveNeetClass(null)
+                              setActiveKhazanaClass(null)
+                              setActiveStudyMaterialsClass(null)
+                              setShowBatchesList(false)
+                            }}
+                            className={`flex-1 min-w-[200px] flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                              activeStudyTab === tab.id
+                                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg transform scale-105'
+                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md'
+                            }`}
+                          >
+                            <span className="text-xl">{tab.icon}</span>
+                            <span>{tab.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                      
+                      {/* Row 3: Khazana */}
+                      <div className="flex flex-wrap gap-4">
+                        {studyMaterialTabs.slice(4).map((tab) => (
+                          <button
+                            key={tab.id}
+                            onClick={() => {
+                              setActiveStudyTab(tab.id)
+                              setActiveFoundationClass(null)
+                              setActiveJeeClass(null)
+                              setActiveNeetClass(null)
+                              setActiveKhazanaClass(null)
+                              setActiveStudyMaterialsClass(null)
+                              setShowBatchesList(false)
+                            }}
+                            className={`flex-1 min-w-[200px] flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                              activeStudyTab === tab.id
+                                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg transform scale-105'
+                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md'
+                            }`}
+                          >
+                            <span className="text-xl">{tab.icon}</span>
+                            <span>{tab.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -799,8 +864,8 @@ export default function Home() {
                       Khazana - Premium Content
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-6">Select your class to access premium study materials</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                      {foundationClasses.map((cls) => (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      {khazanaClasses.map((cls) => (
                         <button
                           key={cls}
                           onClick={() => {
