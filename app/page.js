@@ -16,6 +16,7 @@ export default function Home() {
   const [activeNeetClass, setActiveNeetClass] = useState(null)
   const [activeStudyMaterialsClass, setActiveStudyMaterialsClass] = useState(null)
   const [activeKhazanaClass, setActiveKhazanaClass] = useState(null)
+  const [activeYear, setActiveYear] = useState(null)
   const [showBatchesList, setShowBatchesList] = useState(false)
   const [batches, setBatches] = useState([])
   const [loading, setLoading] = useState(false)
@@ -62,7 +63,7 @@ export default function Home() {
   }, [activeTab, enrolledBatches])
 
   // Fetch batches from Supabase
-  const fetchBatches = async (category, classLevel) => {
+  const fetchBatches = async (category, classLevel, year) => {
     setLoading(true)
     try {
       let query = supabase.from('batches').select('*')
@@ -73,6 +74,10 @@ export default function Home() {
       
       if (classLevel) {
         query = query.eq('class_level', classLevel)
+      }
+      
+      if (year) {
+        query = query.eq('year', year)
       }
       
       const { data, error } = await query.order('created_at', { ascending: false })
@@ -143,6 +148,28 @@ export default function Home() {
   const isBatchEnrolled = (batchId) => {
     return enrolledBatches.includes(batchId)
   }
+
+  // Telegram popup
+  useEffect(() => {
+    function showPopup(){const p=document.getElementById('telegramPopup');if(p) p.style.display='flex';}
+    function hidePopup(){const p=document.getElementById('telegramPopup');if(p) p.style.display='none';}
+    
+    const timer = setTimeout(showPopup,1200);
+    
+    const closeBtn = document.getElementById('popupClose');
+    const popup = document.getElementById('telegramPopup');
+    
+    if(closeBtn) closeBtn.onclick = hidePopup;
+    
+    // Close popup when clicking outside
+    if(popup) {
+      popup.onclick = (e) => {
+        if(e.target.id === 'telegramPopup') hidePopup();
+      };
+    }
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   const sidebarTabs = [
     { id: 'all-batches', label: 'All Batches', icon: <FaUsers /> },
@@ -344,9 +371,61 @@ export default function Home() {
             {/* All Batches Tab */}
             {activeTab === 'all-batches' && (
               <div>
-                {/* Category Tabs - Show directly */}
-                {!showBatchesList && (
+                {/* Year Selection - Show first */}
+                {!activeYear && (
+                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+                    <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-6 text-center">
+                      Select Academic Year
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                      {['2026', '2027'].map((year) => (
+                        <button
+                          key={year}
+                          onClick={() => {
+                            setActiveYear(year)
+                            setActiveStudyTab('foundation')
+                          }}
+                          className="group relative bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl p-8 border-2 border-gray-200 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-300 hover:shadow-2xl hover:scale-105"
+                        >
+                          <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-2">
+                            {year}
+                          </div>
+                          <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                            Academic Year {year}
+                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Category Tabs - Show after year selection */}
+                {activeYear && !showBatchesList && (
                   <div>
+                    {/* Back to Year Selection */}
+                    <button
+                      onClick={() => {
+                        setActiveYear(null)
+                        setActiveStudyTab('foundation')
+                        setActiveFoundationClass(null)
+                        setActiveJeeClass(null)
+                        setActiveNeetClass(null)
+                        setActiveKhazanaClass(null)
+                        setActiveStudyMaterialsClass(null)
+                        setBatches([])
+                      }}
+                      className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 mb-6 transition-colors"
+                    >
+                      <FaArrowLeft />
+                      <span>Back to Year Selection</span>
+                    </button>
+
+                    {/* Year Badge */}
+                    <div className="mb-6 inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-full font-bold text-lg shadow-lg">
+                      📅 Academic Year {activeYear}
+                    </div>
+
                     {/* Category Tabs in 3 Rows */}
                     <div className="space-y-4 mb-8">
                       {/* Row 1: Study Materials & Foundation */}
@@ -431,7 +510,7 @@ export default function Home() {
                 )}
 
                 {/* Class Selection for Study Materials */}
-                {activeStudyTab === 'study-materials' && !showBatchesList && (
+                {activeYear && activeStudyTab === 'study-materials' && !showBatchesList && (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                     <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
                       <FaBook className="mr-3 text-indigo-600" />
@@ -445,7 +524,7 @@ export default function Home() {
                           onClick={() => {
                             setActiveStudyMaterialsClass(cls)
                             setShowBatchesList(true)
-                            fetchBatches('study-materials', cls)
+                            fetchBatches('study-materials', cls, activeYear)
                           }}
                           className="p-6 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-gray-600 transition-all duration-200"
                         >
@@ -458,7 +537,7 @@ export default function Home() {
                 )}
 
                 {/* Batches List for Study Materials */}
-                {activeStudyTab === 'study-materials' && showBatchesList && activeStudyMaterialsClass && (
+                {activeYear && activeStudyTab === 'study-materials' && showBatchesList && activeStudyMaterialsClass && (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                     <button
                       onClick={() => {
@@ -538,7 +617,7 @@ export default function Home() {
                 )}
 
                 {/* Class Selection for Foundation */}
-                {activeStudyTab === 'foundation' && !showBatchesList && (
+                {activeYear && activeStudyTab === 'foundation' && !showBatchesList && (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                     <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
                       <FaBook className="mr-3 text-indigo-600" />
@@ -552,7 +631,7 @@ export default function Home() {
                           onClick={() => {
                             setActiveFoundationClass(cls)
                             setShowBatchesList(true)
-                            fetchBatches('foundation', cls)
+                            fetchBatches('foundation', cls, activeYear)
                           }}
                           className="p-6 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-gray-600 transition-all duration-200"
                         >
@@ -565,7 +644,7 @@ export default function Home() {
                 )}
 
                 {/* Batches List for Foundation */}
-                {activeStudyTab === 'foundation' && showBatchesList && activeFoundationClass && (
+                {activeYear && activeStudyTab === 'foundation' && showBatchesList && activeFoundationClass && (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                     <button
                       onClick={() => {
@@ -645,7 +724,7 @@ export default function Home() {
                 )}
 
                 {/* Class Selection for JEE */}
-                {activeStudyTab === 'jee' && !showBatchesList && (
+                {activeYear && activeStudyTab === 'jee' && !showBatchesList && (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                     <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
                       <FaFlask className="mr-3 text-indigo-600" />
@@ -659,7 +738,7 @@ export default function Home() {
                           onClick={() => {
                             setActiveJeeClass(cls)
                             setShowBatchesList(true)
-                            fetchBatches('jee', cls)
+                            fetchBatches('jee', cls, activeYear)
                           }}
                           className="p-6 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-gray-600 transition-all duration-200"
                         >
@@ -671,7 +750,7 @@ export default function Home() {
                 )}
 
                 {/* Batches List for JEE */}
-                {activeStudyTab === 'jee' && showBatchesList && activeJeeClass && (
+                {activeYear && activeStudyTab === 'jee' && showBatchesList && activeJeeClass && (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                     <button
                       onClick={() => {
@@ -751,7 +830,7 @@ export default function Home() {
                 )}
 
                 {/* Class Selection for NEET */}
-                {activeStudyTab === 'neet' && !showBatchesList && (
+                {activeYear && activeStudyTab === 'neet' && !showBatchesList && (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                     <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
                       <FaMedkit className="mr-3 text-indigo-600" />
@@ -765,7 +844,7 @@ export default function Home() {
                           onClick={() => {
                             setActiveNeetClass(cls)
                             setShowBatchesList(true)
-                            fetchBatches('neet', cls)
+                            fetchBatches('neet', cls, activeYear)
                           }}
                           className="p-6 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-gray-600 transition-all duration-200"
                         >
@@ -777,7 +856,7 @@ export default function Home() {
                 )}
 
                 {/* Batches List for NEET */}
-                {activeStudyTab === 'neet' && showBatchesList && activeNeetClass && (
+                {activeYear && activeStudyTab === 'neet' && showBatchesList && activeNeetClass && (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                     <button
                       onClick={() => {
@@ -857,7 +936,7 @@ export default function Home() {
                 )}
 
                 {/* Class Selection for Khazana */}
-                {activeStudyTab === 'khazana' && !showBatchesList && (
+                {activeYear && activeStudyTab === 'khazana' && !showBatchesList && (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                     <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
                       <FaGraduationCap className="mr-3 text-indigo-600" />
@@ -871,7 +950,7 @@ export default function Home() {
                           onClick={() => {
                             setActiveKhazanaClass(cls)
                             setShowBatchesList(true)
-                            fetchBatches('khazana', cls)
+                            fetchBatches('khazana', cls, activeYear)
                           }}
                           className="p-6 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-gray-600 transition-all duration-200"
                         >
@@ -883,7 +962,7 @@ export default function Home() {
                 )}
 
                 {/* Batches List for Khazana */}
-                {activeStudyTab === 'khazana' && showBatchesList && activeKhazanaClass && (
+                {activeYear && activeStudyTab === 'khazana' && showBatchesList && activeKhazanaClass && (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                     <button
                       onClick={() => {
@@ -1029,6 +1108,30 @@ export default function Home() {
 
           </div>
         </main>
+      </div>
+
+      {/* Telegram Popup */}
+      <div id="telegramPopup" className="popup">
+        <div className="popup-content popup-square">
+          <span id="popupClose" className="popup-close">×</span>
+          <img 
+            src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" 
+            alt="Telegram Icon" 
+            width={64}
+            height={64}
+            className="telegram-icon"
+          />
+          <h2>Join Our Telegram Channels!</h2>
+          <p>Stay updated with latest content!</p>
+          <div className="telegram-buttons">
+            <a href="https://t.me/genius_hub_official_01" target="_blank" className="telegram-btn telegram-btn-official">
+              📚 Geniushub Official
+            </a>
+            <a href="https://t.me/Sigma_Boy_Ji/19" target="_blank" className="telegram-btn telegram-btn-books">
+              📖 SIGMA LIFE
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   )

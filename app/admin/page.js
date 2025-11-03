@@ -19,6 +19,7 @@ export default function AdminPanel() {
   const [batchLink, setBatchLink] = useState('')
   const [category, setCategory] = useState('foundation')
   const [classLevel, setClassLevel] = useState('Class 9')
+  const [year, setYear] = useState('2026')
   const [imageUrl, setImageUrl] = useState('')
   const [imageFile, setImageFile] = useState(null)
   const [uploadMethod, setUploadMethod] = useState('url')
@@ -51,6 +52,7 @@ export default function AdminPanel() {
       const { data, error } = await supabase
         .from('batches')
         .select('*')
+        .order('year', { ascending: false })
         .order('category', { ascending: true })
         .order('class_level', { ascending: true })
       
@@ -184,7 +186,8 @@ export default function AdminPanel() {
             telegram_url: batchLink,
             image_url: finalImageUrl,
             category: category,
-            class_level: classLevel
+            class_level: classLevel,
+            year: year
           }
         ])
 
@@ -198,6 +201,7 @@ export default function AdminPanel() {
       setImageFile(null)
       setCategory('foundation')
       setClassLevel('Class 9')
+      setYear('2026')
       
     } catch (error) {
       console.error('Error adding batch:', error)
@@ -416,6 +420,21 @@ export default function AdminPanel() {
 
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                  Academic Year *
+                </label>
+                <select
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-indigo-500 focus:outline-none"
+                >
+                  <option value="2026">2026</option>
+                  <option value="2027">2027</option>
+                  <option value="2028">2028</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                   Thumbnail Image *
                 </label>
                 <div className="flex gap-4 mb-4">
@@ -500,8 +519,11 @@ export default function AdminPanel() {
                     <div key={batch.id} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
                       <img src={batch.image_url} alt={batch.title} className="w-full h-32 object-cover rounded mb-3" />
                       <h4 className="font-bold text-gray-900 dark:text-white mb-2">{batch.title}</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                         {batch.category} - {batch.class_level}
+                      </p>
+                      <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mb-2">
+                        📅 Year: {batch.year || 'N/A'}
                       </p>
                       <button
                         onClick={() => deleteBatch(batch.id)}
@@ -522,8 +544,11 @@ export default function AdminPanel() {
                     <div key={batch.id} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
                       <img src={batch.image_url} alt={batch.title} className="w-full h-32 object-cover rounded mb-3" />
                       <h4 className="font-bold text-gray-900 dark:text-white mb-2">{batch.title}</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                         {batch.category} - {batch.class_level}
+                      </p>
+                      <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mb-2">
+                        📅 Year: {batch.year || 'N/A'}
                       </p>
                       <button
                         onClick={() => deleteBatch(batch.id)}
@@ -544,8 +569,11 @@ export default function AdminPanel() {
                     <div key={batch.id} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
                       <img src={batch.image_url} alt={batch.title} className="w-full h-32 object-cover rounded mb-3" />
                       <h4 className="font-bold text-gray-900 dark:text-white mb-2">{batch.title}</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                         {batch.category} - {batch.class_level}
+                      </p>
+                      <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mb-2">
+                        📅 Year: {batch.year || 'N/A'}
                       </p>
                       <button
                         onClick={() => deleteBatch(batch.id)}
