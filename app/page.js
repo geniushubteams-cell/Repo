@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react'
 import { FaGraduationCap, FaBook, FaFlask, FaMedkit, FaYoutube, FaWhatsapp, FaRobot, FaPhone, FaBars, FaTimes, FaMoon, FaSun, FaUsers, FaArrowLeft } from 'react-icons/fa'
 import Image from 'next/image'
+import useSecurity from './shared/useSecurity';
 import { supabase } from '../lib/supabase'
 import Banner from '../components/Banner'
 
 export default function Home() {
+    useSecurity(); 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
   const [activeTab, setActiveTab] = useState('all-batches')
