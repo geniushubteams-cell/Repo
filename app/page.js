@@ -189,7 +189,7 @@ export default function Home() {
     { id: 'khazana', label: 'Khazana', icon: <FaGraduationCap /> },
   ]
 
-  const foundationClasses = ['Class 9', 'Class 10', 'Class 11', 'Class 12']
+  const foundationClasses = ['Class 9', 'Class 10', 'JEE', 'NEET']
   const competitiveClasses = ['Class 11', 'Class 12', 'Droppers']
   const khazanaClasses = ['Class 9', 'Class 10', 'Class 11', 'Class 12', 'JEE', 'NEET']
 
@@ -530,7 +530,9 @@ export default function Home() {
                           }}
                           className="p-6 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-gray-600 transition-all duration-200"
                         >
-                          <div className="text-3xl font-bold mb-1">{cls.split(' ')[1]}</div>
+                          <div className="text-3xl font-bold mb-1">
+                            {cls.startsWith('Class') ? cls.split(' ')[1] : cls}
+                          </div>
                           <div className="text-sm font-medium">{cls}</div>
                         </button>
                       ))}
